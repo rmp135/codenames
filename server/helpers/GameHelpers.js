@@ -1,6 +1,12 @@
 import cards from './cards.json'
 import * as _ from 'lodash'
 
+/**
+ * Generates a populated board with text and teams.
+ * 
+ * @export
+ * @returns 
+ */
 export function generateBoard () {
   const board = []
   let teamCards = []
@@ -15,10 +21,7 @@ export function generateBoard () {
   teamCards = _.shuffle(teamCards)
   const cardSample = _.sampleSize(cards, 25)
   for (let i = 0; i < cardSample.length; i++) {
-    if (board[i % 5] === undefined) {
-      board[i % 5] = []
-    }
-    board[i % 5].push({ text: cardSample[i], team: teamCards[i], chosen: Math.random() < 0.5 })
+    board.push({ text: cardSample[i], team: teamCards[i], chosen: false })
   }
   return board
 }
