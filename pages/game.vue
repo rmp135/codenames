@@ -1,4 +1,8 @@
-<style lang="scss">
+<style lang="scss" scoped>
+  .gameid {
+    text-align: center;
+    font-size: 3rem;
+  }
   .grid {
     display: flex;
     .column {
@@ -54,6 +58,7 @@
 </style>
 <template lang="pug">
   #game
+    .gameid {{game.id}}
     .grid
       .column(v-for="column in board")
         .card(v-for="card in column" :class="[card.team]")
@@ -66,7 +71,7 @@
     asyncData ({ params, error, query }) {
       return axios.get(`/api/game/${query.id}`)
         .then(res => {
-          return { cards: res.data.cards }
+          return { game: res.data }
         })
         .catch(err => { // eslint-disable-line
           error({ statusCode: 404, message: 'Game not found.' })
@@ -75,11 +80,11 @@
     computed: {
       board () {
         const board = []
-        for (let i = 0; i < this.cards.length; i++) {
+        for (let i = 0; i < this.game.cards.length; i++) {
           if (board[i % 5] === undefined) {
             board[i % 5] = []
           }
-          board[i % 5].push(this.cards[i])
+          board[i % 5].push(this.game.cards[i])
         }
         return board
       }

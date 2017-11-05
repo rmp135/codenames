@@ -14,7 +14,12 @@ footer
   text-align: center;
   border-top: 1px solid #ddd;
 }
-
+.link {
+  text-decoration: underline;
+  &:hover {
+    cursor: pointer;
+  }
+}
 a, a:hover, a:focus, a:visited
 {
   color: #000;
