@@ -12,6 +12,7 @@
 </style>
 <script>
   import axios from '~/plugins/axios'
+  import socket from '~/plugins/socket.io' // eslint-disable-line
 
   export default {
     data: () => ({
@@ -21,7 +22,7 @@
       async create () {
         try {
           const res = await axios.post(`/api/game`)
-          this.$router.push({ name: 'game', query: { 'id': res.data.id } })
+          this.$router.push({ name: 'game', query: { 'id': res.data.id, 'spytoken': res.data.spyToken } })
         } catch (err) {
           throw new Error(err)
         }

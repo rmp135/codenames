@@ -1,13 +1,17 @@
 import express from 'express'
 import { Nuxt, Builder } from 'nuxt'
+import * as socket from 'socket.io'
+import * as http from 'http'
 
 import api from './api'
 
 const app = express()
+const server =  http.createServer(app)
+const io = socket(server)
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 3000
 
-app.set('port', port)
+// app.set('port', port)
 
 // Import API Routes
 app.use('/api', api)
@@ -28,6 +32,14 @@ if (config.dev) {
 // Give nuxt middleware to express
 app.use(nuxt.render)
 
+io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+    console.log('disconnected')
+  })
+  console.log('connected')
+})
+
 // Listen the server
-app.listen(port, host)
-console.log('Server listening on ' + host + ':' + port) // eslint-disable-line no-console
+server.listen(port, host, () => {
+  console.log('Server listening on ' + host + ':' + port) // eslint-disable-line no-console
+})

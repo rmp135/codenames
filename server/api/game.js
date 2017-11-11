@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { generateBoard } from '../Helpers/GameHelpers'
-import * as nanoid from 'nanoid/generate'
+import nanoid from 'nanoid'
+import generate from 'nanoid/generate'
 
 const router = Router()
 
@@ -8,7 +9,8 @@ const games = []
 
 router.post('/', (req, res) => {
   const game = {
-    id: nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 7),
+    id: generate('1234567890abcdefghijklmnopqrstuvwxyz', 7),
+    spyToken: nanoid(),
     cards: generateBoard()
   }
   games.push(game)
@@ -16,8 +18,11 @@ router.post('/', (req, res) => {
 })
 
 router.get('/:id', (req, res, next) => {
-  const game = games.find(g => g.id === req.params.id)
+  let game = games.find(g => g.id === req.params.id)
   if (game !== undefined) {
+    if (req.query.spytoken !== game.spyToken) {
+      game.cards = game.cards.map(c => ({ ...c, team: undefined }))
+    }
     return res.json(game)
   }
   next()
