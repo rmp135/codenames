@@ -58,12 +58,12 @@
 </style>
 <template lang="pug">
   #game
-    .gameid {{game.id}}
+    .gameid {{game.JoinToken}}
     .grid
       .column(v-for="column in board")
-        .card(v-for="card in column" :class="[card.team]")
+        .card(v-for="card in column" :class="[card.Team]")
           .textwrapper
-            .text {{card.text}}
+            .text {{card.Text}}
 </template>
 <script>
   import axios from '~/plugins/axios'

@@ -2,6 +2,8 @@
   div
     div Enter game id
     input(v-model="id")
+    div Spy Password
+    input(v-model="spyPassword")
     div
       nuxt-link(:to="{ name: 'game', query: { 'id': id } }") Play
     div
@@ -16,13 +18,14 @@
 
   export default {
     data: () => ({
-      id: ''
+      id: '',
+      spyPassword: ''
     }),
     methods: {
       async create () {
         try {
-          const res = await axios.post(`/api/game`)
-          this.$router.push({ name: 'game', query: { 'id': res.data.id, 'spytoken': res.data.spyToken } })
+          const res = await axios.post(`/api/game`, { spyPassword: this.spyPassword })
+          this.$router.push({ name: 'game', query: { 'id': res.data } })
         } catch (err) {
           throw new Error(err)
         }

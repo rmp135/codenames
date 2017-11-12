@@ -2,6 +2,7 @@ import express from 'express'
 import { Nuxt, Builder } from 'nuxt'
 import * as socket from 'socket.io'
 import * as http from 'http'
+import * as bodyparser from 'body-parser'
 
 import api from './api'
 
@@ -14,6 +15,7 @@ const port = process.env.PORT || 3000
 // app.set('port', port)
 
 // Import API Routes
+app.use(bodyparser.json())
 app.use('/api', api)
 
 // Import and Set Nuxt.js options

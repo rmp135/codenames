@@ -21,7 +21,7 @@ export function generateBoard () {
   teamCards = _.shuffle(teamCards)
   const cardSample = _.sampleSize(cards, 25)
   for (let i = 0; i < cardSample.length; i++) {
-    board.push({ text: cardSample[i], team: teamCards[i], chosen: false })
+    board.push({ Text: cardSample[i], Team: teamCards[i], Chosen: false })
   }
   return board
 }
