@@ -11,6 +11,7 @@ exports.up = function(knex, Promise) {
       table.string('Text')
       table.string('Team')
       table.boolean('Chosen')
+      table.boolean('Revealed')
       table.integer('GameID')
       table.foreign('GameID').references('Game.ID')
     })

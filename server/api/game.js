@@ -1,12 +1,9 @@
 import { Router } from 'express'
-import { generateBoard } from '../Helpers/GameHelpers'
-import nanoid from 'nanoid'
+import { generateBoard, santizeGameForAgent, santizeGameForSpy } from '../Helpers/GameHelpers'
 import generate from 'nanoid/generate'
-import * as DBHelper from '../helpers/DBHelper'
+import * as GameRepository from '../helpers/GameRepository';
 
 const router = Router()
-
-const games = []
 
 router.post('/', async (req, res) => {
   const game = {
@@ -14,14 +11,17 @@ router.post('/', async (req, res) => {
     cards: generateBoard(),
     SpyPassword: req.body.spyPassword
   }
-  const newGame = await DBHelper.InsertGame(game)
-  res.json(newGame.ID)
+  const newGame = await GameRepository.InsertGame(game)
+  res.json(newGame.JoinToken)
 })
 
-router.get('/:id', async (req, res, next) => {
-  const game = await DBHelper.GetGameByID(req.params.id)
+router.get('/:token', async (req, res, next) => {
+  let game = await GameRepository.GetGameByToken(req.params.token)
   if (game !== undefined) {
-    if (req.query.spyPassword !== game.spy_password) {
+    if (req.query.spypassword === game.SpyPassword) {
+      game = santizeGameForSpy(game)
+    } else {
+      game = santizeGameForAgent(game)
     }
     return res.json(game)
   }

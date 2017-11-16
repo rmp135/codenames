@@ -69,7 +69,7 @@
   import axios from '~/plugins/axios'
   export default {
     asyncData ({ params, error, query }) {
-      return axios.get(`/api/game/${query.id}`, { params: { spytoken: query.spytoken } })
+      return axios.get(`/api/game/${query.token}`, { params: { spypassword: query.spypassword } })
         .then(res => {
           return { game: res.data }
         })

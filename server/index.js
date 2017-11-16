@@ -3,11 +3,12 @@ import { Nuxt, Builder } from 'nuxt'
 import * as socket from 'socket.io'
 import * as http from 'http'
 import * as bodyparser from 'body-parser'
+import './helpers/DBHelper'
 
 import api from './api'
 
 const app = express()
-const server =  http.createServer(app)
+const server = http.createServer(app)
 const io = socket(server)
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 3000
