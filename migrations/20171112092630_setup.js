@@ -1,5 +1,5 @@
 
-exports.up = function(knex, Promise) {
+exports.up = function (knex, Promise) {
   return Promise.all([
     knex.schema.createTable('Game', table => {
       table.increments('ID')
@@ -16,11 +16,11 @@ exports.up = function(knex, Promise) {
       table.foreign('GameID').references('Game.ID')
     })
   ])
-};
+}
 
-exports.down = function(knex, Promise) {
+exports.down = function (knex, Promise) {
   return Promise.all([
     knex.schema.dropTable('Card'),
     knex.schema.dropTable('Game')
   ])
-};
+}
