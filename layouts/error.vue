@@ -1,37 +1,15 @@
-<template>
-  <section class="container">
-    <img src="../assets/img/baby.png" alt="Logo" class="logo" />
-    <h1 class="title">
-      {{ error.statusCode }}
-    </h1>
-    <h2 class="info">
-      {{ error.message }}
-    </h2>
-    <nuxt-link class="button" to="/" v-if="error.statusCode === 404">
-      Homepage
-    </nuxt-link>
-  </section>
+<template lang="pug">
+  section.container.is-fluid
+    .columns
+      .column.is-4.is-offset-4
+        img(src="../assets/img/baby.png" alt="Logo" class="logo")
+        h1.title {{ error.statusCode }}
+        h2.subtitle {{ error.message }}
+        nuxt-link.button(to="/") Homepage
 </template>
-<script>
-export default {
-  props: ['error']
-}
-</script>
 
-<style scoped>
-.title
-{
-  margin-top: 15px;
-  font-size: 5em;
-}
-.info
-{
-  font-weight: 300;
-  color: #9aabb1;
-  margin: 0;
-}
-.button
-{
-  margin-top: 50px;
-}
-</style>
+<script>
+  export default {
+    props: ['error']
+  }
+</script>

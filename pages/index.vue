@@ -1,18 +1,22 @@
 <template lang="pug">
   .section
     .container.is-fluid
-      .column.is-4.is-offset-4
-        .field
-          label.label Game Token
-          .control
-            input.input(v-model="id")
-        .field
-          label.label Spy Password
-          .control
-            input.input(v-model="spyPassword")
-        article.message.is-danger
-          .message-body Note: Password will be sent in plain text.
+      .columns.is-centered
+        .column.is-4
+          .field
+            label.label Game Token
+            .control
+              input.input(v-model="id")
+          .field
+            label.label Spy Password
+            .control
+              input.input(v-model="spyPassword")
+          article.message.is-danger
+            .message-body Note: Password will be sent in plain text.
+          .columns.is-centered
+            .column
               button.button(:disabled="isPlayDisabled" @click="play") Play
+            .column
               button.button(:disabled="isCreateDisabled" @click="create") Create
 </template>
 <style lang="scss">
