@@ -12,10 +12,8 @@
             input.input(v-model="spyPassword")
         article.message.is-danger
           .message-body Note: Password will be sent in plain text.
-        .field
-          nuxt-link(:to="{ name: 'game', query: { 'token': id, 'spypassword': spyPassword } }") Play
-        .field
-          a.link(@click="create") Create
+              button.button(:disabled="isPlayDisabled" @click="play") Play
+              button.button(:disabled="isCreateDisabled" @click="create") Create
 </template>
 <style lang="scss">
 
@@ -29,8 +27,21 @@
       id: '',
       spyPassword: ''
     }),
+    computed: {
+      isCreateDisabled () {
+        return this.spyPassword === ''
+      },
+      isPlayDisabled () {
+        return this.id === ''
+      }
+    },
     methods: {
+      async play () {
+        if (this.isPlayDisabled) return
+        this.$router.push({ name: 'game', query: { 'token': this.id, 'password': this.spyPassword } })
+      },
       async create () {
+        if (this.isCreateDisabled) return
         try {
           const res = await axios.post(`/api/game`, { spyPassword: this.spyPassword })
           this.$router.push({ name: 'game', query: { 'token': res.data, 'password': this.spyPassword } })

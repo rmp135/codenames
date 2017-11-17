@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 router.get('/:token', async (req, res, next) => {
   let game = await GameRepository.GetGameByToken(req.params.token)
   if (game !== undefined) {
-    if (req.query.spypassword === game.SpyPassword) {
+    if (req.query.password === game.SpyPassword) {
       game = santizeGameForSpy(game)
     } else {
       game = santizeGameForAgent(game)
