@@ -105,6 +105,7 @@
       }
     },
     mounted () {
+      socket.emit('join', { token: this.game.JoinToken })
       socket.on('select', msg => {
         if (msg.token === this.game.JoinToken) {
           const card = this.game.cards.find(c => c.ID === msg.id)
