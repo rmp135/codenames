@@ -3,7 +3,7 @@ import { Nuxt, Builder } from 'nuxt'
 import * as socket from 'socket.io'
 import * as http from 'http'
 import * as bodyparser from 'body-parser'
-import './helpers/DBHelper'
+import * as KnexSetup from './helpers/KnexSetup'
 import * as SocketHandler from './SocketHandler'
 
 import api from './api'
@@ -13,6 +13,8 @@ const server = http.createServer(app)
 const io = socket(server)
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 3000
+
+KnexSetup.setup()
 
 // app.set('port', port)
 
