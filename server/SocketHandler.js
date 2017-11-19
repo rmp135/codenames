@@ -13,7 +13,7 @@ export function handle (io) {
     socket.on('reveal', async msg => {
       if (!(await GameRepository.isSpy(msg.token, msg.password))) return
       const card = await CardRepository.updateCard(msg.id, msg.token, { Revealed: true, Chosen: false })
-      io.sockestr.in(msg.token).emit('reveal', { id: card.ID, team: card.Team, token: msg.token }, { for: msg.token })
+      io.sockets.in(msg.token).emit('reveal', { id: card.ID, team: card.Team, token: msg.token }, { for: msg.token })
     })
   })
 }
