@@ -3,27 +3,33 @@
     text-align: center;
     font-size: 3rem;
   }
-  .grid {
-    display: flex;
+  .columns {
     .column {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      .card {
+      .cardcontainer {
+        .numwrapper {
+          width: 100%;
+          position: absolute;
+          .text {
+            margin-left: auto;
+            margin-right: 0;
+          }
+        }
         .textwrapper {
           display: flex;
           justify-content: center;
           align-items: center;
           height: inherit;
           width: 100%;
+          text-shadow:
+            -2px -2px 0 white,
+            2px -2px 0 white,
+            -2px 2px 0 white,
+            2px 2px 0 white;
+          font-size: 2rem;
         }
-        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-shadow:
-          -2px -2px 0 white,
-          2px -2px 0 white,
-          -2px 2px 0 white,
-          2px 2px 0 white;
-        font-size: 1.5rem;
+        &.chosen {
+          box-shadow: 0px 0px 7px 1px grey;
+        }
         background-size: 100px;
         background-repeat: no-repeat;
         height: 100px;
@@ -35,6 +41,10 @@
         flex-basis: 0 0;
         &:hover {
           cursor: pointer;
+        }
+        &.revealed {
+          border-color: green;
+          box-shadow: 0px 0px 7px 1px green;
         }
         &.C {
           background-image: url("~assets/img/baby.png");
@@ -58,15 +68,16 @@
 </style>
 <template lang="pug">
   #game
-    .gameid {{game.JoinToken}}
-    .grid
+    .gameid {{game.JoinToken}} - {{playerType}}
+    .columns
       .column(v-for="column in board")
-        .card(v-for="card in column" :class="[card.Team]")
+        .cardcontainer(v-for="card in column" :class="[card.Team, { chosen: card.Chosen, revealed: card.Revealed }]" @click="onCardClick(card)")
           .textwrapper
             .text {{card.Text}}
 </template>
 <script>
   import axios from '~/plugins/axios'
+  import socket from '~/plugins/socket.io'
   export default {
     asyncData ({ params, error, query }) {
       return axios.get(`/api/game/${query.token}`, { params: { password: query.password } })
@@ -78,6 +89,9 @@
         })
     },
     computed: {
+      playerType () {
+        return this.game.isSpy ? 'Spy' : 'Agent'
+      },
       board () {
         const board = []
         for (let i = 0; i < this.game.cards.length; i++) {
@@ -87,6 +101,39 @@
           board[i % 5].push(this.game.cards[i])
         }
         return board
+      }
+    },
+    mounted () {
+      socket.on('select', msg => {
+        if (msg.token === this.game.JoinToken) {
+          const card = this.game.cards.find(c => c.ID === msg.id)
+          if (card === null) return
+          card.Chosen = !card.Chosen
+        }
+      })
+      socket.on('reveal', msg => {
+        console.log(msg)
+        if (msg.token === this.game.JoinToken) {
+          const card = this.game.cards.find(c => c.ID === msg.id)
+          if (card === null) return
+          card.Chosen = false
+          if (this.game.isSpy) {
+            card.Revealed = true
+          } else {
+            // debugger // eslint-disable-line
+            card.Team = msg.team
+          }
+        }
+      })
+    },
+    methods: {
+      onCardClick (card) {
+        if (this.game.isSpy) {
+          socket.emit('reveal', { id: card.ID, token: this.game.JoinToken })
+        } else {
+          if (card.Team !== null) return
+          socket.emit('select', { id: card.ID, token: this.game.JoinToken })
+        }
       }
     }
   }

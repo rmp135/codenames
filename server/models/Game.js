@@ -2,13 +2,13 @@ import { Model } from 'objection'
 import CardModel from './Card'
 
 export default class GameModel extends Model {
-  static get tableName() {
+  static get tableName () {
     return 'Game'
   }
-  static get idColumn() {
+  static get idColumn () {
     return 'ID'
   }
-  static get relationMappings() {
+  static get relationMappings () {
     return {
       cards: {
         relation: Model.HasManyRelation,

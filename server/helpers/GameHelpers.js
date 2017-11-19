@@ -27,19 +27,23 @@ export function generateBoard () {
 
 export function santizeGameForAgent (game) {
   return {
+    isSpy: false,
     JoinToken: game.JoinToken,
     cards: game.cards.map(c => ({
+      ID: c.ID,
       Text: c.Text,
       Chosen: c.Chosen,
-      Team: c.Revealed ? c.Team : undefined
+      Team: c.Revealed ? c.Team : null
     }))
   }
 }
 
 export function santizeGameForSpy (game) {
   return {
+    isSpy: true,
     JoinToken: game.JoinToken,
     cards: game.cards.map(c => ({
+      ID: c.ID,
       Text: c.Text,
       Chosen: c.Chosen,
       Team: c.Team,

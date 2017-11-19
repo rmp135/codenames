@@ -4,6 +4,7 @@ import * as socket from 'socket.io'
 import * as http from 'http'
 import * as bodyparser from 'body-parser'
 import './helpers/DBHelper'
+import * as SocketHandler from './SocketHandler'
 
 import api from './api'
 
@@ -35,12 +36,7 @@ if (config.dev) {
 // Give nuxt middleware to express
 app.use(nuxt.render)
 
-io.on('connection', (socket) => {
-  socket.on('disconnect', () => {
-    console.log('disconnected')
-  })
-  console.log('connected')
-})
+SocketHandler.handle(io)
 
 // Listen the server
 server.listen(port, host, () => {
