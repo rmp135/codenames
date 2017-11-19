@@ -6,6 +6,7 @@
   .columns {
     .column {
       .cardcontainer {
+        user-select: none;
         .numwrapper {
           width: 100%;
           position: absolute;
