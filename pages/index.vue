@@ -8,9 +8,9 @@
             .control
               input.input(v-model="id")
           .field
-            label.label Spy Password
+            label.label Password
             .control
-              input.input(v-model="spyPassword")
+              input.input(v-model="password")
           article.message.is-danger
             .message-body Note: Password will be sent in plain text.
           .columns.is-centered
@@ -29,11 +29,11 @@
   export default {
     data: () => ({
       id: '',
-      spyPassword: ''
+      password: ''
     }),
     computed: {
       isCreateDisabled () {
-        return this.spyPassword === ''
+        return this.password === ''
       },
       isPlayDisabled () {
         return this.id === ''
@@ -42,13 +42,13 @@
     methods: {
       async play () {
         if (this.isPlayDisabled) return
-        this.$router.push({ name: 'game', query: { 'token': this.id, 'password': this.spyPassword } })
+        this.$router.push({ name: 'game', query: { 'token': this.id, 'password': this.password } })
       },
       async create () {
         if (this.isCreateDisabled) return
         try {
-          const res = await axios.post(`/api/game`, { spyPassword: this.spyPassword })
-          this.$router.push({ name: 'game', query: { 'token': res.data, 'password': this.spyPassword } })
+          const res = await axios.post(`/api/game`, { password: this.password })
+          this.$router.push({ name: 'game', query: { 'token': res.data, 'password': this.password } })
         } catch (err) {
           throw new Error(err)
         }

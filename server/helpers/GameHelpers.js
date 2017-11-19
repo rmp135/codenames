@@ -28,12 +28,12 @@ export function generateBoard () {
 export function sanitizeGameForAgent (game) {
   return {
     isSpy: false,
-    JoinToken: game.JoinToken,
+    joinToken: game.JoinToken,
     cards: game.cards.map(c => ({
-      ID: c.ID,
-      Text: c.Text,
-      Chosen: c.Chosen,
-      Team: c.Revealed ? c.Team : null
+      id: c.ID,
+      text: c.Text,
+      chosen: c.Chosen,
+      team: c.Revealed ? c.Team : null
     }))
   }
 }
@@ -41,13 +41,13 @@ export function sanitizeGameForAgent (game) {
 export function sanitizeGameForSpy (game) {
   return {
     isSpy: true,
-    JoinToken: game.JoinToken,
+    joinToken: game.JoinToken,
     cards: game.cards.map(c => ({
-      ID: c.ID,
-      Text: c.Text,
-      Chosen: c.Chosen,
-      Team: c.Team,
-      Revealed: c.Revealed
+      id: c.ID,
+      text: c.Text,
+      chosen: c.Chosen,
+      team: c.Team,
+      revealed: c.Revealed
     }))
   }
 }

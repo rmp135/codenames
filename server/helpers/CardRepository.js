@@ -1,6 +1,6 @@
 import CardModel from '../models/Card'
 
-export async function GetCardByIDAndToken (id, token) {
+export async function getCardByIDAndToken (id, token) {
   return await CardModel
   .query()
   .joinRelation('game')
@@ -9,8 +9,8 @@ export async function GetCardByIDAndToken (id, token) {
   .where({ 'Card.ID': id, 'Game.JoinToken': token })
 }
 
-export async function UpdateCard (id, token, updateClause) {
-  const card = await GetCardByIDAndToken(id, token)
+export async function updateCard (id, token, updateClause) {
+  const card = await getCardByIDAndToken(id, token)
   if (card === null) throw new Error('Card not found.')
   await CardModel
   .query()

@@ -1,13 +1,13 @@
 import GameModel from '../models/Game'
 
-export async function GetGameByID (id) {
+export async function getGameByID (id) {
   return await GameModel
   .query()
   .findById(id)
   .eager('cards')
 }
 
-export async function GetGameByToken (token) {
+export async function getGameByToken (token) {
   return await GameModel
   .query()
   .first()
@@ -15,11 +15,11 @@ export async function GetGameByToken (token) {
   .eager('cards')
 }
 
-export async function InsertGame (game) {
+export async function insertGame (game) {
   return await GameModel.query().insertGraph(game)
 }
 
-export async function IsSpy (token, password) {
+export async function isSpy (token, password) {
   return await GameModel
   .query()
   .first()

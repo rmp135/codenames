@@ -69,12 +69,12 @@
 </style>
 <template lang="pug">
   #game
-    .gameid {{game.JoinToken}} - {{playerType}}
+    .gameid {{game.joinToken}} - {{playerType}}
     .columns
       .column(v-for="column in board")
-        .cardcontainer(v-for="card in column" :class="[card.Team, { chosen: card.Chosen, revealed: card.Revealed }]" @click="onCardClick(card)")
+        .cardcontainer(v-for="card in column" :class="[card.team, { chosen: card.chosen, revealed: card.revealed }]" @click="onCardClick(card)")
           .textwrapper
-            .text {{card.Text}}
+            .text {{card.text}}
 </template>
 <script>
   import axios from '~/plugins/axios'
@@ -105,25 +105,23 @@
       }
     },
     mounted () {
-      socket.emit('join', { token: this.game.JoinToken })
+      socket.emit('join', { token: this.game.joinToken })
       socket.on('select', msg => {
-        if (msg.token === this.game.JoinToken) {
-          const card = this.game.cards.find(c => c.ID === msg.id)
+        if (msg.token === this.game.joinToken) {
+          const card = this.game.cards.find(c => c.id === msg.id)
           if (card === null) return
-          card.Chosen = !card.Chosen
+          card.chosen = !card.chosen
         }
       })
       socket.on('reveal', msg => {
-        console.log(msg)
-        if (msg.token === this.game.JoinToken) {
-          const card = this.game.cards.find(c => c.ID === msg.id)
+        if (msg.token === this.game.joinToken) {
+          const card = this.game.cards.find(c => c.id === msg.id)
           if (card === null) return
-          card.Chosen = false
+          card.chosen = false
           if (this.game.isSpy) {
-            card.Revealed = true
+            card.revealed = true
           } else {
-            // debugger // eslint-disable-line
-            card.Team = msg.team
+            card.team = msg.team
           }
         }
       })
@@ -131,10 +129,10 @@
     methods: {
       onCardClick (card) {
         if (this.game.isSpy) {
-          socket.emit('reveal', { id: card.ID, token: this.game.JoinToken, password: this.password })
+          socket.emit('reveal', { id: card.id, token: this.game.joinToken, password: this.password })
         } else {
-          if (card.Team !== null) return
-          socket.emit('select', { id: card.ID, token: this.game.JoinToken })
+          if (card.team !== null) return
+          socket.emit('select', { id: card.id, token: this.game.joinToken })
         }
       }
     }
