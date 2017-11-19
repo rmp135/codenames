@@ -25,7 +25,7 @@ export function generateBoard () {
   return board
 }
 
-export function santizeGameForAgent (game) {
+export function sanitizeGameForAgent (game) {
   return {
     isSpy: false,
     JoinToken: game.JoinToken,
@@ -38,7 +38,7 @@ export function santizeGameForAgent (game) {
   }
 }
 
-export function santizeGameForSpy (game) {
+export function sanitizeGameForSpy (game) {
   return {
     isSpy: true,
     JoinToken: game.JoinToken,
