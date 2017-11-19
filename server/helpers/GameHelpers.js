@@ -28,7 +28,7 @@ export function generateBoard () {
 export function sanitizeGameForAgent (game) {
   return {
     isSpy: false,
-    joinToken: game.JoinToken,
+    name: game.Name,
     cards: game.cards.map(c => ({
       id: c.ID,
       text: c.Text,
@@ -41,7 +41,7 @@ export function sanitizeGameForAgent (game) {
 export function sanitizeGameForSpy (game) {
   return {
     isSpy: true,
-    joinToken: game.JoinToken,
+    name: game.Name,
     cards: game.cards.map(c => ({
       id: c.ID,
       text: c.Text,

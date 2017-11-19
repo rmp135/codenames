@@ -5,6 +5,8 @@ import * as http from 'http'
 import * as bodyparser from 'body-parser'
 import * as KnexSetup from './helpers/KnexSetup'
 import * as SocketHandler from './SocketHandler'
+import * as cookieParser from 'cookie-parser'
+import * as bearerToken from 'express-bearer-token'
 
 import api from './api'
 
@@ -20,6 +22,8 @@ KnexSetup.setup()
 
 // Import API Routes
 app.use(bodyparser.json())
+app.use(cookieParser())
+app.use(bearerToken())
 app.use('/api', api)
 
 // Import and Set Nuxt.js options
@@ -44,3 +48,7 @@ SocketHandler.handle(io)
 server.listen(port, host, () => {
   console.log('Server listening on ' + host + ':' + port) // eslint-disable-line no-console
 })
+
+export {
+  io
+}

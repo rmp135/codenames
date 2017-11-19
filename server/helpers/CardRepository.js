@@ -1,16 +1,15 @@
 import CardModel from '../models/Card'
 
-export async function getCardByIDAndToken (id, token) {
+export async function getCardByID (id, token) {
   return await CardModel
   .query()
-  .joinRelation('game')
   .first()
   .select()
-  .where({ 'Card.ID': id, 'Game.JoinToken': token })
+  .where({ ID: id })
 }
 
-export async function updateCard (id, token, updateClause) {
-  const card = await getCardByIDAndToken(id, token)
+export async function updateCard (id, updateClause) {
+  const card = await getCardByID(id)
   if (card === null) throw new Error('Card not found.')
   await CardModel
   .query()

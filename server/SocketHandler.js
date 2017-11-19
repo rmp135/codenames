@@ -1,5 +1,5 @@
-import * as CardRepository from './helpers/CardRepository';
-import * as GameRepository from './helpers/GameRepository';
+import * as CardRepository from './helpers/CardRepository'
+import * as GameRepository from './helpers/GameRepository'
 
 export function handle (io) {
   io.on('connection', socket => {

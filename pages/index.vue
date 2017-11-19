@@ -4,9 +4,9 @@
       .columns.is-centered
         .column.is-4
           .field
-            label.label Game Token
+            label.label Game Name
             .control
-              input.input(v-model="id")
+              input.input(v-model="name")
           .field
             label.label Password
             .control
@@ -23,7 +23,7 @@
             .message.is-info
               .message-header Joining
               .message-body
-                p To join a game, enter the game token and click Play. 
+                p To join a game, enter the game name and click Play. 
                 p If you are playing as a Spy, also enter the game password.
             .message.is-info
               .message-header Creating
@@ -41,7 +41,7 @@
 
   export default {
     data: () => ({
-      id: '',
+      name: '',
       password: ''
     }),
     computed: {
@@ -49,19 +49,22 @@
         return this.password === ''
       },
       isPlayDisabled () {
-        return this.id === ''
+        return this.name === ''
       }
     },
     methods: {
       async play () {
         if (this.isPlayDisabled) return
-        this.$router.push({ name: 'game', query: { 'token': this.id, 'password': this.password } })
+        const res = await axios.post(`/api/game/${this.name}/join`, { password: this.password })
+        localStorage.setItem('token', res.data.token)
+        this.$router.push({ name: 'game', query: { 'name': this.name } })
       },
       async create () {
         if (this.isCreateDisabled) return
         try {
           const res = await axios.post(`/api/game`, { password: this.password })
-          this.$router.push({ name: 'game', query: { 'token': res.data, 'password': this.password } })
+          localStorage.setItem('token', res.data.token)
+          this.$router.push({ name: 'game', query: { 'name': res.data.name } })
         } catch (err) {
           throw new Error(err)
         }

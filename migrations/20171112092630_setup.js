@@ -3,8 +3,9 @@ exports.up = function (knex, Promise) {
   return Promise.all([
     knex.schema.createTable('Game', table => {
       table.increments('ID')
-      table.string('JoinToken')
-      table.string('SpyPassword')
+      table.string('Name')
+      table.string('SpyToken')
+      table.string('Password')
     }),
     knex.schema.createTable('Card', table => {
       table.increments('ID')

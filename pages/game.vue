@@ -73,8 +73,8 @@
   }
 </style>
 <template lang="pug">
-  #game
-    .gameid {{game.joinToken}} - {{playerType}}
+  #game(v-show="!isLoading")
+    .gameid {{game.name}} - {{playerType}}
     .columns.section
       .column(v-for="column in board")
         .cardcontainer(v-for="card in column" :class="[card.team, { chosen: card.chosen, revealed: card.revealed }]" @click="onCardClick(card)")
@@ -101,15 +101,6 @@
   import axios from '~/plugins/axios'
   import socket from '~/plugins/socket.io'
   export default {
-    asyncData ({ params, error, query }) {
-      return axios.get(`/api/game/${query.token}`, { params: { password: query.password } })
-        .then(res => {
-          return { game: res.data, password: query.password }
-        })
-        .catch(err => { // eslint-disable-line
-          error({ statusCode: 404, message: 'Game not found.' })
-        })
-    },
     computed: {
       playerType () {
         return this.game.isSpy ? 'Spy' : 'Agent'
@@ -125,17 +116,33 @@
         return board
       }
     },
-    mounted () {
-      socket.emit('join', { token: this.game.joinToken })
+    data: () => ({
+      isLoading: true,
+      isSpy: false,
+      name: '',
+      game: {
+        cards: []
+      }
+    }),
+    async mounted () {
+      try {
+        // debugger // eslint-disable-line
+        const res = await axios.get(`/api/game/${this.$route.query.name}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+        this.game = res.data
+        this.isLoading = false
+      } catch (err) {
+        console.log({ statusCode: 404, message: 'Game not found.' })
+      }
+      socket.emit('join', { token: this.game.name })
       socket.on('select', msg => {
-        if (msg.token === this.game.joinToken) {
+        if (msg.token === this.game.name) {
           const card = this.game.cards.find(c => c.id === msg.id)
           if (card === null) return
           card.chosen = !card.chosen
         }
       })
       socket.on('reveal', msg => {
-        if (msg.token === this.game.joinToken) {
+        if (msg.token === this.game.name) {
           const card = this.game.cards.find(c => c.id === msg.id)
           if (card === null) return
           card.chosen = false
@@ -150,10 +157,10 @@
     methods: {
       onCardClick (card) {
         if (this.game.isSpy) {
-          socket.emit('reveal', { id: card.id, token: this.game.joinToken, password: this.password })
+          socket.emit('reveal', { id: card.id, token: this.game.name, password: this.password })
         } else {
           if (card.team !== null) return
-          socket.emit('select', { id: card.id, token: this.game.joinToken })
+          socket.emit('select', { id: card.id, token: this.game.name })
         }
       }
     }
