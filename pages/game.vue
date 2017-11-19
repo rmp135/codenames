@@ -82,7 +82,7 @@
     asyncData ({ params, error, query }) {
       return axios.get(`/api/game/${query.token}`, { params: { password: query.password } })
         .then(res => {
-          return { game: res.data }
+          return { game: res.data, password: query.password }
         })
         .catch(err => { // eslint-disable-line
           error({ statusCode: 404, message: 'Game not found.' })
@@ -129,7 +129,7 @@
     methods: {
       onCardClick (card) {
         if (this.game.isSpy) {
-          socket.emit('reveal', { id: card.ID, token: this.game.JoinToken })
+          socket.emit('reveal', { id: card.ID, token: this.game.JoinToken, password: this.password })
         } else {
           if (card.Team !== null) return
           socket.emit('select', { id: card.ID, token: this.game.JoinToken })

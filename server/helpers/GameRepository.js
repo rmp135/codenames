@@ -18,3 +18,10 @@ export async function GetGameByToken (token) {
 export async function InsertGame (game) {
   return await GameModel.query().insertGraph(game)
 }
+
+export async function IsSpy (token, password) {
+  return await GameModel
+  .query()
+  .first()
+  .where({ JoinToken: token, SpyPassword: password })
+}
