@@ -18,6 +18,19 @@
               button.button(:disabled="isPlayDisabled" @click="play") Play
             .column
               button.button(:disabled="isCreateDisabled" @click="create") Create
+        .column.is-4
+          .content
+            .message.is-info
+              .message-header Joining
+              .message-body
+                p To join a game, enter the game token and click Play. 
+                p If you are playing as a Spy, also enter the game password.
+            .message.is-info
+              .message-header Creating
+              .message-body
+                p The Spy must create the game.
+                p To create a game, enter the game password and click Create. The game token will be ignored.
+                p This password will be required for other Spies but not Agents.
 </template>
 <style lang="scss">
 

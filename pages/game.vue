@@ -3,6 +3,11 @@
     text-align: center;
     font-size: 3rem;
   }
+  .playnotes {
+    .green {
+      color: green;
+    }
+  }
   .columns {
     .column {
       .cardcontainer {
@@ -70,11 +75,27 @@
 <template lang="pug">
   #game
     .gameid {{game.joinToken}} - {{playerType}}
-    .columns
+    .columns.section
       .column(v-for="column in board")
         .cardcontainer(v-for="card in column" :class="[card.team, { chosen: card.chosen, revealed: card.revealed }]" @click="onCardClick(card)")
           .textwrapper
             .text {{card.text}}
+    .section.playnotes
+      .message.is-info
+        template(v-if="game.isSpy")
+          .message-header Spy
+          .message-body
+            p Click a card to reveal it to the Agents. Once revealed, a card cannot be hidden again!
+            p
+              span Once revealed, the card will be highlighted with a
+              span.green  green 
+              span background and the Agent will see the team icon.
+            p Cards that the Agents want revealing will be highlighted with a black shadow.
+        template(v-else)
+          .message-header Agent
+          .message-body
+            p Click a card to let the Spy know that you want it revealed. These cards will be highlighted with a black shadow.
+            p Once the Spy has revealed a card, it's team icon will show.
 </template>
 <script>
   import axios from '~/plugins/axios'
