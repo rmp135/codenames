@@ -92,3 +92,19 @@ If a password is provided, it will be checked against the Spy password and the J
 ### POST
 
 Performs an action for a game by joinToken.
+
+Action can be either `select` for an Agent to select a card, or `reveal` for a Spy to reveal it. The user must be authorized to perform the relevant action.
+
+### Request
+
+```json
+{
+  "action": "select", // The action to peform.
+  "cardId": 23        // The card to perform the action on.
+}
+```
+
+### Response
+
+200 - OK  
+403 - Permission Denied

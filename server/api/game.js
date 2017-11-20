@@ -47,16 +47,25 @@ router.post('/:name/join', async (req, res, next) => {
 })
 
 router.post('/:name/action', async (req, res, next) => {
-  // const decodeToken = await jwt.verify(req.token, 'password')
+  let decodeToken = null
+  try {
+    decodeToken = await jwt.verify(req.token, 'password') // eslint-ignore-line
+  } catch (error) {
+    return res.sendStatus(403)
+  }
+  const card = await CardRepository.getCardByID(req.body.cardId)
+  console.log(decodeToken)
+  if (card.GameID !== decodeToken.id) return res.sendStatus(403)
   switch (req.body.action) {
     case 'select':
       await CardRepository.updateCard(req.body.cardId, { Chosen: true })
-      io.sockets.in(req.params.name).emit('select', req.body)
+      io.sockets.in(req.params.name).emit('select', { id: card.ID })
       return res.sendStatus(200)
-
     case 'reveal':
-    
-      break
+      if (!decodeToken.isSpy) return res.sendStatus(403)
+      await CardRepository.updateCard(req.body.cardId, { Revealed: true, Chosen: false })
+      io.sockets.in(req.params.name).emit('reveal', { id: card.ID, team: card.Team })
+      return res.sendStatus(200)
   }
   next()
 })

@@ -135,32 +135,28 @@
       }
       socket.emit('join', { token: this.game.name })
       socket.on('select', msg => {
-        if (msg.token === this.game.name) {
-          const card = this.game.cards.find(c => c.id === msg.id)
-          if (card === null) return
-          card.chosen = !card.chosen
-        }
+        const card = this.game.cards.find(c => c.id === msg.id)
+        if (card === null) return
+        card.chosen = !card.chosen
       })
       socket.on('reveal', msg => {
-        if (msg.token === this.game.name) {
-          const card = this.game.cards.find(c => c.id === msg.id)
-          if (card === null) return
-          card.chosen = false
-          if (this.game.isSpy) {
-            card.revealed = true
-          } else {
-            card.team = msg.team
-          }
+        const card = this.game.cards.find(c => c.id === msg.id)
+        if (card === null) return
+        card.chosen = false
+        if (this.game.isSpy) {
+          card.revealed = true
+        } else {
+          card.team = msg.team
         }
       })
     },
     methods: {
-      onCardClick (card) {
+      async onCardClick (card) {
         if (this.game.isSpy) {
-          socket.emit('reveal', { id: card.id, token: this.game.name, password: this.password })
+          await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'reveal', 'cardId': card.id }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
         } else {
           if (card.team !== null) return
-          socket.emit('select', { id: card.id, token: this.game.name })
+          await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'select', 'cardId': card.id }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
         }
       }
     }
