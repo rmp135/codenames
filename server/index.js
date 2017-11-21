@@ -5,7 +5,6 @@ import * as http from 'http'
 import * as bodyparser from 'body-parser'
 import * as KnexSetup from './helpers/KnexSetup'
 import * as SocketHandler from './SocketHandler'
-import * as cookieParser from 'cookie-parser'
 import * as bearerToken from 'express-bearer-token'
 
 import api from './api'
@@ -22,7 +21,6 @@ KnexSetup.setup()
 
 // Import API Routes
 app.use(bodyparser.json())
-app.use(cookieParser())
 app.use(bearerToken())
 app.use('/api', api)
 

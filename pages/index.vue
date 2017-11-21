@@ -42,7 +42,8 @@
   export default {
     data: () => ({
       name: '',
-      password: ''
+      password: '',
+      err: ''
     }),
     computed: {
       isCreateDisabled () {
@@ -66,7 +67,7 @@
           localStorage.setItem('token', res.data.token)
           this.$router.push({ name: 'game', query: { 'name': res.data.name } })
         } catch (err) {
-          throw new Error(err)
+          this.error = 'An error has occurred creating the game. Sorry about that. :('
         }
       }
     }

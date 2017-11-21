@@ -156,7 +156,7 @@
           await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'reveal', 'cardId': card.id }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
         } else {
           if (card.team !== null) return
-          await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'select', 'cardId': card.id }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+          await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'select', 'cardId': card.id })
         }
       }
     }
