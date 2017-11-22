@@ -11,8 +11,6 @@
             label.label Password
             .control
               input.input(v-model="password")
-          article.message.is-danger
-            .message-body Note: Password will be sent in plain text.
           .columns.is-centered
             .column
               button.button(:disabled="isPlayDisabled" @click="play") Play

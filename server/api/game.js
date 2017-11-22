@@ -18,10 +18,13 @@ router.post('/', async (req, res) => {
   }
   const newGame = await GameRepository.insertGame(game)
   const token = await GameRepository.generateGameName(newGame, true)
+  console.log('got ehre')
+  req.session.authUser = token
   res.json({ name: newGame.Name, token })
 })
 
 router.get('/:name', async (req, res, next) => {
+  console.log(req.session.authUser)
   let game = await GameRepository.getGameByName(req.params.name)
   if (game === undefined) return next()
   let isSpy = false
@@ -49,8 +52,8 @@ router.post('/:name/join', async (req, res, next) => {
 })
 
 router.post('/:name/action', async (req, res, next) => {
+  const game = await GameRepository.getGameByName(req.params.name)
   if (req.body.action === 'select') {
-    const game = await GameRepository.getGameByName(req.params.name)
     if (game === undefined) return next()
     const card = await CardRepository.getCardByID(req.body.cardId)
     if (card.GameID !== game.ID) return res.sendStatus(403)
@@ -61,11 +64,11 @@ router.post('/:name/action', async (req, res, next) => {
   if (req.body.action === 'reveal') {
     let decodeToken = null
     try {
-      decodeToken = await jwt.verify(req.token, 'password') // eslint-ignore-line
+      decodeToken = await jwt.verify(req.token, 'password')
     } catch (error) {
       return res.sendStatus(403)
     }
-    if (!decodeToken.isSpy) return res.sendStatus(403)
+    if (decodeToken.id !== game.ID) return res.sendStatus(403)
     const card = await CardRepository.updateCard(req.body.cardId, { Revealed: true, Chosen: false })
     io.sockets.in(req.params.name).emit('reveal', { id: card.ID, team: card.Team })
     return res.sendStatus(200)

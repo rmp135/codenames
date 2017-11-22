@@ -6,6 +6,7 @@ import * as bodyparser from 'body-parser'
 import * as KnexSetup from './helpers/KnexSetup'
 import * as SocketHandler from './SocketHandler'
 import * as bearerToken from 'express-bearer-token'
+import * as session from 'express-session'
 
 import api from './api'
 
@@ -22,6 +23,12 @@ KnexSetup.setup()
 // Import API Routes
 app.use(bodyparser.json())
 app.use(bearerToken())
+app.use(session({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 60000 }
+}))
 app.use('/api', api)
 
 // Import and Set Nuxt.js options

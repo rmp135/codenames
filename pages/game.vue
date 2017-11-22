@@ -130,6 +130,10 @@
         cards: []
       }
     }),
+    async asyncData (app) {
+      await axios.get(`/api/game/${app.query.name}`)
+      // console.log(res.data)
+    },
     async mounted () {
       try {
         // debugger // eslint-disable-line
