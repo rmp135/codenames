@@ -93,7 +93,7 @@ If a password is provided, it will be checked against the Spy password and the J
 
 Performs an action for a game by joinToken.
 
-Action can be either `select` for an Agent to select a card, or `reveal` for a Spy to reveal it. The user must be authorized to perform the relevant action.
+Action can be either `select` for an Agent to select a card, or `reveal` for a Spy to reveal it. The user must be authorized to reveal.
 
 ### Request
 

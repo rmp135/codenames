@@ -8,6 +8,10 @@
       color: green;
     }
   }
+  .connectionerror {
+    text-align: center;
+    color: red;
+  }
   .columns {
     .column {
       .cardcontainer {
@@ -75,6 +79,7 @@
 <template lang="pug">
   #game(v-show="!isLoading")
     .gameid {{game.name}} - {{playerType}}
+    .connectionerror {{connectionError}}
     .columns.section
       .column(v-for="column in board")
         .cardcontainer(v-for="card in column" :class="[card.team, { chosen: card.chosen, revealed: card.revealed }]" @click="onCardClick(card)")
@@ -120,6 +125,7 @@
       isLoading: true,
       isSpy: false,
       name: '',
+      connectionError: '',
       game: {
         cards: []
       }
@@ -133,6 +139,9 @@
       } catch (err) {
         console.log({ statusCode: 404, message: 'Game not found.' })
       }
+      socket.on('disconnect', () => {
+        this.connectionError = 'Server disconnected. Please reload the page.'
+      })
       socket.emit('join', { token: this.game.name })
       socket.on('select', msg => {
         const card = this.game.cards.find(c => c.id === msg.id)
