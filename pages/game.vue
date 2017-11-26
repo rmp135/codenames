@@ -77,7 +77,7 @@
   }
 </style>
 <template lang="pug">
-  #game(v-show="!isLoading")
+  #game
     .gameid {{game.name}} - {{playerType}}
     .connectionerror {{connectionError}}
     .columns.section
@@ -130,19 +130,20 @@
         cards: []
       }
     }),
-    async asyncData (app) {
-      await axios.get(`/api/game/${app.query.name}`)
-      // console.log(res.data)
+    async asyncData (context) {
+      const options = {}
+      if (context.isServer) {
+        options.headers = context.req.headers
+      }
+      try {
+        const res = await axios.get(`/api/game/${context.query.name}`, options)
+        return { game: res.data }
+      } catch (err) {
+        console.log(err)
+        context.error({ statusCode: 404, message: 'Game not found.' })
+      }
     },
     async mounted () {
-      try {
-        // debugger // eslint-disable-line
-        const res = await axios.get(`/api/game/${this.$route.query.name}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-        this.game = res.data
-        this.isLoading = false
-      } catch (err) {
-        console.log({ statusCode: 404, message: 'Game not found.' })
-      }
       socket.on('disconnect', () => {
         this.connectionError = 'Server disconnected. Please reload the page.'
       })

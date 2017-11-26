@@ -9,6 +9,7 @@ if (process.server) {
 
 if (process.client) {
   console.log('client')
+  // console.log('client')
   // debugger // eslint-disable-line
 }
 

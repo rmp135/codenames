@@ -17,23 +17,18 @@ router.post('/', async (req, res) => {
     PasswordHash: password
   }
   const newGame = await GameRepository.insertGame(game)
-  const token = await GameRepository.generateGameName(newGame, true)
-  console.log('got ehre')
-  req.session.authUser = token
-  res.json({ name: newGame.Name, token })
+  req.session.gameID = newGame.ID
+  res.json({ name: newGame.Name })
 })
 
 router.get('/:name', async (req, res, next) => {
-  console.log(req.session.authUser)
+  // console.log(req.session)
+  // console.log(req.session.gameID)
   let game = await GameRepository.getGameByName(req.params.name)
   if (game === undefined) return next()
   let isSpy = false
-  if (req.token !== undefined) {
-    let decodeToken = null
-    try {
-      decodeToken = await jwt.verify(req.token, 'password')
-      isSpy = decodeToken.id === game.ID && decodeToken.isSpy
-    } catch (error) { } // Doesn't really matter if the token is invalid. Treat as public.
+  if (req.session !== undefined) {
+    isSpy = req.session.gameID === game.ID
   }
   if (isSpy) {
     game = GameHelpers.sanitizeGameForSpy(game)
@@ -47,8 +42,10 @@ router.post('/:name/join', async (req, res, next) => {
   let game = await GameRepository.getGameByName(req.params.name)
   if (game === undefined) return next()
   const isSpy = await bcrypt.compare(req.body.password, game.PasswordHash)
-  const token = await GameRepository.generateGameName(game, isSpy)
-  return res.send({ token })
+  if (isSpy) {
+    req.session.gameID = game.ID
+  }
+  return res.sendStatus(200)
 })
 
 router.post('/:name/action', async (req, res, next) => {
@@ -57,7 +54,7 @@ router.post('/:name/action', async (req, res, next) => {
     if (game === undefined) return next()
     const card = await CardRepository.getCardByID(req.body.cardId)
     if (card.GameID !== game.ID) return res.sendStatus(403)
-    await CardRepository.updateCard(card.ID, { Chosen: true })
+    await CardRepository.updateCard(card.ID, { Chosen: !card.Chosen })
     io.sockets.in(req.params.name).emit('select', { id: card.ID })
     return res.sendStatus(200)
   }

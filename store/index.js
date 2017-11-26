@@ -10,6 +10,8 @@ export const mutations = {
 
 export const actions = {
   nuxtServerInit ({ commit }, { req }) {
+    // console.log('nuxtServerInit')
+    // console.log(req.session)
     if (req.session) {
       commit('SET_AUTH', req.session.authUser)
     }
