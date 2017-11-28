@@ -1,10 +1,9 @@
-
 exports.up = function (knex, Promise) {
   return Promise.all([
     knex.schema.createTable('Game', table => {
       table.increments('ID')
-      table.string('JoinToken')
-      table.string('SpyPassword')
+      table.string('Name')
+      table.string('PasswordHash')
     }),
     knex.schema.createTable('Card', table => {
       table.increments('ID')
@@ -14,7 +13,7 @@ exports.up = function (knex, Promise) {
       table.boolean('Revealed')
       table.integer('GameID')
       table.foreign('GameID').references('Game.ID')
-    })
+    }),
   ])
 }
 

@@ -8,6 +8,10 @@
       color: green;
     }
   }
+  .connectionerror {
+    text-align: center;
+    color: red;
+  }
   .columns {
     .column {
       .cardcontainer {
@@ -73,14 +77,16 @@
   }
 </style>
 <template lang="pug">
-  #game
-    .gameid {{game.joinToken}} - {{playerType}}
-    .columns.section
+  #game.container
+    .gameid {{game.name}} - {{playerType}}
+    .message.is-danger(v-show="errorText !== ''")
+      .message-body {{errorText}}
+    .columns
       .column(v-for="column in board")
         .cardcontainer(v-for="card in column" :class="[card.team, { chosen: card.chosen, revealed: card.revealed }]" @click="onCardClick(card)")
           .textwrapper
             .text {{card.text}}
-    .section.playnotes
+    .playnotes
       .message.is-info
         template(v-if="game.isSpy")
           .message-header Spy
@@ -101,15 +107,6 @@
   import axios from '~/plugins/axios'
   import socket from '~/plugins/socket.io'
   export default {
-    asyncData ({ params, error, query }) {
-      return axios.get(`/api/game/${query.token}`, { params: { password: query.password } })
-        .then(res => {
-          return { game: res.data, password: query.password }
-        })
-        .catch(err => { // eslint-disable-line
-          error({ statusCode: 404, message: 'Game not found.' })
-        })
-    },
     computed: {
       playerType () {
         return this.game.isSpy ? 'Spy' : 'Agent'
@@ -125,35 +122,63 @@
         return board
       }
     },
-    mounted () {
-      socket.emit('join', { token: this.game.joinToken })
+    data: () => ({
+      isLoading: true,
+      isSpy: false,
+      name: '',
+      errorText: '',
+      game: {
+        cards: []
+      }
+    }),
+    async asyncData (context) {
+      const options = {}
+      if (context.isServer) {
+        options.headers = context.req.headers
+      }
+      try {
+        const res = await axios.get(`/api/game/${context.query.name}`, options)
+        return { game: res.data }
+      } catch (err) {
+        console.log(err)
+        context.error({ statusCode: 404, message: 'Game not found.' })
+      }
+    },
+    async mounted () {
+      socket.on('disconnect', () => {
+        this.errorText = 'Server disconnected. Please reload the page.'
+      })
+      socket.emit('join', { token: this.game.name })
       socket.on('select', msg => {
-        if (msg.token === this.game.joinToken) {
-          const card = this.game.cards.find(c => c.id === msg.id)
-          if (card === null) return
-          card.chosen = !card.chosen
-        }
+        const card = this.game.cards.find(c => c.id === msg.id)
+        if (card === undefined) return
+        card.chosen = !card.chosen
       })
       socket.on('reveal', msg => {
-        if (msg.token === this.game.joinToken) {
-          const card = this.game.cards.find(c => c.id === msg.id)
-          if (card === null) return
-          card.chosen = false
-          if (this.game.isSpy) {
-            card.revealed = true
-          } else {
-            card.team = msg.team
-          }
+        const card = this.game.cards.find(c => c.id === msg.id)
+        if (card === undefined) return
+        card.chosen = false
+        if (this.game.isSpy) {
+          card.revealed = true
+        } else {
+          card.team = msg.team
         }
       })
     },
     methods: {
-      onCardClick (card) {
-        if (this.game.isSpy) {
-          socket.emit('reveal', { id: card.id, token: this.game.joinToken, password: this.password })
-        } else {
-          if (card.team !== null) return
-          socket.emit('select', { id: card.id, token: this.game.joinToken })
+      async onCardClick (card) {
+        const action = this.game.isSpy ? 'reveal' : 'action'
+        try {
+          await axios.post(`/api/game/${this.game.name}/action`, { 'action': action, 'cardId': card.id })
+          this.errorText = ''
+        } catch (err) {
+          if (err.response.status === 404) {
+            this.errorText = 'Game not found. The game may have been deleted due to inactivity.'
+          } else if (err.response.status === 403) {
+            this.errorText = 'Permission denied. Try rejoining the game.'
+          } else {
+            this.errorText = 'An unknown error has occurred updating the game.'
+          }
         }
       }
     }

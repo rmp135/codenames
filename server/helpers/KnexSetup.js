@@ -1,12 +1,9 @@
 import * as knex from 'knex'
-import { Model } from 'objection'
+import config from '../../knexfile.js'
 
-export function setup () {
-  const db = knex({
-    client: 'sqlite',
-    connection: './db.sqlite3',
-    useNullAsDefault: true,
-    debug: false
-  })
-  Model.knex(db)
+export function createDB () {
+  const envConfig = config[process.env.NODE_ENV]
+  if (envConfig === undefined) throw new Error(`Unable to find suitable knex configuration for environment ${process.env.NODE_ENV}.`)
+  const db = knex(envConfig)
+  return db
 }
