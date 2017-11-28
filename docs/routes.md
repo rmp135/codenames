@@ -1,7 +1,7 @@
 ## /api/game
 ### POST
 
-Creates a new game as a Spy with a given password. Returns a JWT Authorized as a Spy.
+Creates a new game as a Spy with a given password. Returns a response with the name of the game for joining. Also sets the `connect.sid` cookie for session management.
 
 #### Request
 
@@ -14,18 +14,15 @@ Creates a new game as a Spy with a given password. Returns a JWT Authorized as a
 #### Response
 ```json
 {
-  "joinToken": "dF2kxf",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnYW1lSWQiOjIsImlzU3B5Ijp0cnVlLCJpYXQiOjE1MTExMjkxNjN9.40V8ppJHoBAsOGSXc8kJRoMH2SwKGWkIm0miIy-K_6Q"
+  "name": "dF2kxf" // The name of the game for later joining.
 }
 
 ```
 
-## /api/game/:joinToken
+## /api/game/:name
 ### GET
 
-Returns the game by joinToken. If the Authorization header is provided, additional Spy fields may be returned. If the Authorization token is not provided or is invalid, the game will be returned as as a Spy response.
-
-An Authorization header can be provided in the form `Bearer: <token>` where token is the JWT provided when joining a game. This will determine if the user is a Spy or an Agent. 
+Returns the game by name. If the `connect.sid` token is present and valid for the game, additional Spy fields may be returned.
 
 #### Response
 
@@ -34,7 +31,7 @@ If the user is not authorized as a Spy the following fields will be returned.
 ```json
 {
   "isSpy": false,         // Whether the user is a spy.
-  "joinToken": "ui2dfQD", // The join token of the game.
+  "name": "ui2dfQD",      // The join token of the game.
   "cards":  [             // List of cards.
     {
       "id": 23,           // ID of the card. Used for updating.
@@ -52,7 +49,7 @@ If the user is authorized, the following fields will be returned.
 ```json
 {
   "isSpy": true,          // Whether the user is a spy.
-  "joinToken": "ui2dfQD", // The join token of the game.
+  "name": "ui2dfQD",      // The join token of the game.
   "cards":  [             // List of cards.
     {
       "id": 23,           // ID of the card. Used for updating.
@@ -65,12 +62,10 @@ If the user is authorized, the following fields will be returned.
   ]
 }
 ```
-## /api/game/:joinToken/join
+## /api/game/:name/join
 ### POST
 
-Attempts to join game by joinToken, returning a JWT that must be provided in the Authorization header in subsequent calls.
-
-If a password is provided, it will be checked against the Spy password and the JWT will be returned with Authorization as a Spy. Otherwise the JWT will be authorized as an Agent.
+Attempts to join game by name, setting the `connect.sid` cookie for session management.
 
 ### Request
 
@@ -81,19 +76,15 @@ If a password is provided, it will be checked against the Spy password and the J
 ```
 
 ### Response
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJnYW1lSWQiOjIsImlzU3B5Ijp0cnVlLCJpYXQiOjE1MTExMjkxNjN9.40V8ppJHoBAsOGSXc8kJRoMH2SwKGWkIm0miIy-K_6Q"
-}
+200 - OK
+404 - Not Found
 
-```
-
-## /api/game/:joinToken/action
+## /api/game/:name/action
 ### POST
 
-Performs an action for a game by joinToken.
+Performs an action for a game by name.
 
-Action can be either `select` for an Agent to select a card, or `reveal` for a Spy to reveal it. The user must be authorized to reveal.
+Action can be either `select` for an Agent to select a card, or `reveal` for a Spy to reveal it. The user must be authorized as a Spy to reveal.
 
 ### Request
 

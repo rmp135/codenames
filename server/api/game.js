@@ -3,7 +3,6 @@ import * as GameHelpers from '../Helpers/GameHelpers'
 import generate from 'nanoid/generate'
 import * as GameRepository from '../helpers/GameRepository'
 import * as CardRepository from '../helpers/CardRepository'
-import * as jwt from 'jsonwebtoken'
 import { io } from '../index'
 import * as bcrypt from 'bcrypt'
 
@@ -22,8 +21,6 @@ router.post('/', async (req, res) => {
 })
 
 router.get('/:name', async (req, res, next) => {
-  // console.log(req.session)
-  // console.log(req.session.gameID)
   let game = await GameRepository.getGameByName(req.params.name)
   if (game === undefined) return next()
   let isSpy = false
@@ -44,6 +41,8 @@ router.post('/:name/join', async (req, res, next) => {
   const isSpy = await bcrypt.compare(req.body.password, game.PasswordHash)
   if (isSpy) {
     req.session.gameID = game.ID
+  } else {
+    await req.session.destroy()
   }
   return res.sendStatus(200)
 })
@@ -59,13 +58,7 @@ router.post('/:name/action', async (req, res, next) => {
     return res.sendStatus(200)
   }
   if (req.body.action === 'reveal') {
-    let decodeToken = null
-    try {
-      decodeToken = await jwt.verify(req.token, 'password')
-    } catch (error) {
-      return res.sendStatus(403)
-    }
-    if (decodeToken.id !== game.ID) return res.sendStatus(403)
+    if (req.session.gameID !== game.ID) return res.sendStatus(403)
     const card = await CardRepository.updateCard(req.body.cardId, { Revealed: true, Chosen: false })
     io.sockets.in(req.params.name).emit('reveal', { id: card.ID, team: card.Team })
     return res.sendStatus(200)

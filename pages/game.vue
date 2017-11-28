@@ -77,15 +77,16 @@
   }
 </style>
 <template lang="pug">
-  #game
+  #game.container
     .gameid {{game.name}} - {{playerType}}
-    .connectionerror {{connectionError}}
-    .columns.section
+    .message.is-danger(v-show="errorText !== ''")
+      .message-body {{errorText}}
+    .columns
       .column(v-for="column in board")
         .cardcontainer(v-for="card in column" :class="[card.team, { chosen: card.chosen, revealed: card.revealed }]" @click="onCardClick(card)")
           .textwrapper
             .text {{card.text}}
-    .section.playnotes
+    .playnotes
       .message.is-info
         template(v-if="game.isSpy")
           .message-header Spy
@@ -125,7 +126,7 @@
       isLoading: true,
       isSpy: false,
       name: '',
-      connectionError: '',
+      errorText: '',
       game: {
         cards: []
       }
@@ -145,17 +146,17 @@
     },
     async mounted () {
       socket.on('disconnect', () => {
-        this.connectionError = 'Server disconnected. Please reload the page.'
+        this.errorText = 'Server disconnected. Please reload the page.'
       })
       socket.emit('join', { token: this.game.name })
       socket.on('select', msg => {
         const card = this.game.cards.find(c => c.id === msg.id)
-        if (card === null) return
+        if (card === undefined) return
         card.chosen = !card.chosen
       })
       socket.on('reveal', msg => {
         const card = this.game.cards.find(c => c.id === msg.id)
-        if (card === null) return
+        if (card === undefined) return
         card.chosen = false
         if (this.game.isSpy) {
           card.revealed = true
@@ -166,11 +167,18 @@
     },
     methods: {
       async onCardClick (card) {
-        if (this.game.isSpy) {
-          await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'reveal', 'cardId': card.id }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-        } else {
-          if (card.team !== null) return
-          await axios.post(`/api/game/${this.game.name}/action`, { 'action': 'select', 'cardId': card.id })
+        const action = this.game.isSpy ? 'reveal' : 'action'
+        try {
+          await axios.post(`/api/game/${this.game.name}/action`, { 'action': action, 'cardId': card.id })
+          this.errorText = ''
+        } catch (err) {
+          if (err.response.status === 404) {
+            this.errorText = 'Game not found. The game may have been deleted due to inactivity.'
+          } else if (err.response.status === 403) {
+            this.errorText = 'Permission denied. Try rejoining the game.'
+          } else {
+            this.errorText = 'An unknown error has occurred updating the game.'
+          }
         }
       }
     }

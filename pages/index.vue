@@ -11,6 +11,10 @@
             label.label Password
             .control
               input.input(v-model="password")
+          .columns
+            .column
+              .message.is-danger(v-show="errorText !== ''")
+                .message-body {{errorText}}
           .columns.is-centered
             .column
               button.button(:disabled="isPlayDisabled" @click="play") Play
@@ -41,7 +45,7 @@
     data: () => ({
       name: '',
       password: '',
-      err: ''
+      errorText: ''
     }),
     computed: {
       isCreateDisabled () {
@@ -54,7 +58,17 @@
     methods: {
       async play () {
         if (this.isPlayDisabled) return
-        const res = await axios.post(`/api/game/${this.name}/join`, { password: this.password })
+        let res = null
+        try {
+          res = await axios.post(`/api/game/${this.name}/join`, { password: this.password })
+        } catch (err) {
+          if (err.response.status === 404) {
+            this.errorText = 'Game not found.'
+          } else {
+            this.errorText = 'An unknown error has occurred.'
+          }
+          return
+        }
         localStorage.setItem('token', res.data.token)
         this.$router.push({ name: 'game', query: { 'name': this.name } })
       },

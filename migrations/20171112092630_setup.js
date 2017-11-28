@@ -13,7 +13,7 @@ exports.up = function (knex, Promise) {
       table.boolean('Revealed')
       table.integer('GameID')
       table.foreign('GameID').references('Game.ID')
-    })
+    }),
   ])
 }
 
